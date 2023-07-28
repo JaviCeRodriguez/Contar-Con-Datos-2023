@@ -37,8 +37,16 @@ resultado = requests.post("https://apis.datos.gob.ar/georef/api/ubicacion",
 
 # extraigo las provincias del json
 
-resultado_formateado = [diccionarios['ubicacion']['provincia_nombre'] for diccionarios in resultado['resultados']]
+resultado_provincia = [diccionarios['ubicacion']['provincia_nombre'] for diccionarios in resultado['resultados']]
 
-data.insert(12, 'provincia', resultado_formateado)
+resultado_provincia_id = [diccionarios['ubicacion']['provincia_id'] for diccionarios in resultado['resultados']]
 
-data.to_csv('data_con_provincias.csv', index = False)
+data.insert(0, 'provincia', resultado_provincia)
+
+data.insert(0,'provincia_id',resultado_provincia_id)
+
+#Si la central pertenece a eolica, solar o hidraulica, agrego columna con valor Renovable
+
+data['Tipo_eco'] = data['Tipo'].apply(lambda x: 'Transicion' if x in ['nuclear'] else 'Renovable' if x in ['eolicas','solar','hidraulica'] else 'No Renovable')  
+
+data.to_csv('centrales.csv', index = False)
