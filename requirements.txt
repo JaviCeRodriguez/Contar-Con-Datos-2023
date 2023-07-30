@@ -14,3 +14,4 @@ Fiona == 1.9.4.post1
 pyproj == 3.6.0
 shapely == 2.0.1
 plotly==5.15.0
+requests~=2.31.0

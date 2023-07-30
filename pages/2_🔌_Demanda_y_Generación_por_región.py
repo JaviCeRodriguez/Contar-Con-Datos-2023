@@ -2,8 +2,6 @@ import requests
 import streamlit as st
 from datetime import datetime as dt
 import pandas as pd
-import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 
 
@@ -20,12 +18,13 @@ Estos datos nos ayudarán visualizar en vivo el estado general en todas las regi
 
 
 st.header("Demanda")
-st.caption(dt.now().strftime("Última actualización: %d/%m/%Y, a las %H:%M"))
+st.caption(dt.now().strftime("Última actualización de demanda: %d/%m/%Y, a las %H:%M"))
 
 response = requests.get(api_regiones_demanda)
 regiones = list(response.json())
 
 option = st.selectbox(
+    key='demanda-options',
     label='Elige una región para visualizar',
     options=(region['nombre'] for region in regiones),
     index=len(regiones) - 1,
@@ -121,3 +120,72 @@ if response_dem.status_code == 200:
         yaxis_title="Valor de Temperatura [°C]"
     )
     st.plotly_chart(fig2, theme="streamlit", use_container_width=True)
+
+st.header("Generación")
+st.caption(dt.now().strftime("Última actualización de generación: %d/%m/%Y, a las %H:%M"))
+
+option2 = st.selectbox(
+    key='generacion-options',
+    label='Elige una región para visualizar',
+    options=(region['nombre'] for region in regiones),
+    index=len(regiones) - 1,
+    placeholder='Selecciona o escriba el nombre de la región...'
+)
+
+region_selected = next(region for region in regiones if region['nombre'] == option2)
+response_gen = requests.get(api_generacion + str(region_selected.get('id')))
+if response_dem.status_code == 200:
+    generacion = list(response_gen.json())
+    if len(generacion) > 0:
+        df_generacion = pd.DataFrame(generacion)
+        df_generacion['fecha'] = pd.to_datetime(df_generacion['fecha'])
+        st.dataframe(df_generacion)
+
+        total = st.checkbox('Ver total de generación en el gráfico')
+
+        fig3 = go.Figure()
+        fig3.add_trace(go.Scatter(
+            x=df_generacion["fecha"],
+            y=df_generacion["termico"],
+            name='🌡️ Térmico',
+            fill='tozeroy',
+            line_color='red'
+        ))
+        fig3.add_trace(go.Scatter(
+            x=df_generacion["fecha"],
+            y=df_generacion["hidraulico"],
+            name='💧 Hidráulico',
+            fill='tozeroy',
+            line_color='blue'
+        ))
+        fig3.add_trace(go.Scatter(
+            x=df_generacion["fecha"],
+            y=df_generacion["renovable"],
+            name='🍃 Renovable',
+            fill='tozeroy',
+            line_color='green'
+        ))
+        fig3.add_trace(go.Scatter(
+            x=df_generacion["fecha"],
+            y=df_generacion["nuclear"],
+            name='☢️ Nuclear',
+            fill='tozeroy',
+            line_color='orange'
+        ))
+        if total:
+            fig3.add_trace(go.Scatter(
+                x=df_generacion["fecha"],
+                y=df_generacion["sumTotal"],
+                name='Total',
+                line_color='pink'
+            ))
+        fig3.update_layout(legend=dict(orientation='h', yanchor='top', y=1.1, xanchor='right', x=1))
+        fig3.update_layout(
+            title="Gráfico de Generación",
+            xaxis_title="Hora del día [HH:MM]",
+            yaxis_title="Valor de Generación [MW]"
+        )
+        st.plotly_chart(fig3, theme="streamlit", use_container_width=True)
+    else:
+        st.write(f'En la región **{region_selected.get("nombre")}** no hay generación de energía!')
+
