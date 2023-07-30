@@ -7,6 +7,14 @@ import seaborn as sns
 import numpy as np
 import warnings
 
+st.set_page_config(
+    page_title="Inicio",
+    page_icon="🏠",
+    layout="wide",
+)
+
+# TODO: See https://github.com/randyzwitch/streamlit-folium/blob/master/examples/pages/dynamic_updates.py
+
 sns.set(rc={'figure.figsize':(20, 6)})
 warnings.filterwarnings('ignore')
 colores = {
@@ -60,4 +68,4 @@ for idx in range(len(df_sadi)):
             popup=f"{df_sadi.iloc[idx]['Tipo']}: {df_sadi.iloc[idx]['Nombre']}",
             icon=folium.Icon(color=colores[df_sadi.iloc[idx]['Tipo']], icon='bolt', prefix='fa')
         ).add_to(mapa)
-st_folium(mapa, width=725)
+st_folium(mapa, width=1420)

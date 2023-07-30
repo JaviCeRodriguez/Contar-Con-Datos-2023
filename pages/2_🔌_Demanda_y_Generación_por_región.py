@@ -4,6 +4,11 @@ from datetime import datetime as dt
 import pandas as pd
 import plotly.graph_objects as go
 
+st.set_page_config(
+    page_title="Demanda y Generación",
+    page_icon="🔌",
+    layout="wide",
+)
 
 api_regiones_demanda = 'https://api.cammesa.com/demanda-svc/demanda/RegionesDemanda'
 api_demanda_temp = 'https://api.cammesa.com/demanda-svc/demanda/ObtieneDemandaYTemperaturaRegion?id_region='
