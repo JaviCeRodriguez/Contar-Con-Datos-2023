@@ -23,6 +23,10 @@ csv_content = response.text
 # Cargar el contenido del archivo CSV en un DataFrame de pandas
 centrales = pd.read_csv(StringIO(csv_content), index_col=0, sep=',')
 
+#drop nan en centrales
+centrales = centrales.dropna()
+
+
 #Show centrales
 st.subheader('Centrales')
 st.write(centrales)
