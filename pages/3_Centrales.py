@@ -36,9 +36,9 @@ st.write(centrales)
 st.pydeck_chart(pdk.Deck(
     map_style=None,
     initial_view_state=pdk.ViewState(
-        latitude=34.6,
+        latitude=-34.6,
         longitude=-58.4,
-        zoom=5,
+        zoom=3,
         pitch=50,
     ),
     layers=[
@@ -66,14 +66,14 @@ selected_central = st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
         latitude=-34.6,
         longitude= -58.4,
-        zoom=5,
+        zoom=3,
         pitch=0,
     ),
     layers=[
         pdk.Layer(
             'ScatterplotLayer',
             data=centrales,
-            get_position='[Lon, Lat]',
+            get_position='[lon, lat]',
             get_radius=10000,
             get_color=[255, 0, 0],
             pickable=True,
