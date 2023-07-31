@@ -10,9 +10,8 @@ st.set_page_config(
 
 st.title('Centrales')
 st.write("HI")
-
 #Read centrales
-centrales = pd.read_csv('data/centrales.csv')
+centrales = pd.read_csv('../eda/data/cammesa/centrales.csv')
 
 
 #data_load_state = st.text('Loading data...')
