@@ -1,6 +1,8 @@
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+import requests
+from io import StringIO
 
 st.set_page_config(
     page_title="Centrales",
@@ -10,13 +12,16 @@ st.set_page_config(
 
 st.title('Centrales')
 st.write("HI")
-#Read centrales
-centrales = pd.read_csv('../eda/data/cammesa/centrales.csv')
 
+# URL del archivo CSV en el repositorio de GitHub
+url = 'https://raw.githubusercontent.com/lucas-oliaro/Contar-Con-Datos-2023/main/eda/data/cammesa/centrales.csv'
 
-#data_load_state = st.text('Loading data...')
-#centrales = load_data()
-#data_load_state.text('Loading data...done!')
+# Descargar el contenido del archivo CSV desde GitHub
+response = requests.get(url)
+csv_content = response.text
+
+# Cargar el contenido del archivo CSV en un DataFrame de pandas
+centrales = pd.read_csv(StringIO(csv_content), index_col=0, sep=',')
 
 #Show centrales
 st.subheader('Centrales')
