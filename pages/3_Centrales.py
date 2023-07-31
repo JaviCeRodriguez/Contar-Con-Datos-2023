@@ -25,59 +25,47 @@ centrales = pd.read_csv(StringIO(csv_content), index_col=0, sep=',')
 
 #drop nan en centrales
 centrales = centrales.dropna()
+colores_centrales = {
+    'eolicas': "#00FF00",    # Green for 'eolicas'
+    'hidraulica': "#0000FF", # Blue for 'hidraulica'
+    'nuclear': "#FFA500",    # Orange for 'nuclear'
+    'solar': "#FFFF00",      # Yellow for 'solar'
+    'termicas': "#FF0000",   # Red for 'termicas'
+}
 
 
 #Show centrales
 st.subheader('Centrales')
 st.write(centrales)
 
-
+#Mapa 1
+centrales_gridlayer = centrales[['lat', 'lon', 'Potencia', 'Tipo']]
+centrales_gridlayer['Tooltip_1'] = 'Potencia ' + centrales_gridlayer['Potencia'].astype(str) + ' MW - Tipo: ' + centrales['Tipo'].astype(str)
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None,
+    map_style='mapbox://styles/mapbox/light-v9',
+    
     initial_view_state=pdk.ViewState(
         latitude=-34.6,
         longitude=-58.4,
         zoom=3,
         pitch=50,
-    ),
+        ),
+    
+    tooltip={"text": "Potencia: {Potencia} MW \nTipo: {Tipo}"},  # doesn't work (not sure why)    
+    
     layers=[
         pdk.Layer(
            'GridLayer',
-           data=centrales,
-           get_position='[lon, lat]',
-           radius=125,
-           elevation_scale=10,
-           elevation_range=[0, 1000],
+           data=centrales_gridlayer,
            pickable=True,
            extruded=True,
-           tooltip=True,
-        ),
+           cell_size=10000, 
+           elevation_scale=100,
+           get_position='[lon, lat]',
+           elevation_range=[0, 2541],
+           ),
     
     ],
-))
 
-
-centrales['Tooltip'] = centrales['Nemo'] + ' (' + centrales['Potencia'].astype(str) + ' MW)'
-
-# Muestra los detalles de la central seleccionada en el mapa
-selected_central = st.pydeck_chart(pdk.Deck(
-    #map_style='mapbox://styles/mapbox/light-v9',
-    initial_view_state=pdk.ViewState(
-        latitude=-34.6,
-        longitude= -58.4,
-        zoom=3,
-        pitch=0,
-    ),
-    layers=[
-        pdk.Layer(
-            'ScatterplotLayer',
-            data=centrales,
-            get_position='[lon, lat]',
-            get_radius=10000,
-            get_color=[255, 0, 0],
-            pickable=True,
-            tooltip='Tooltip',
-        ),
-    ],
 ))
