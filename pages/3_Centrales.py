@@ -9,15 +9,15 @@ st.set_page_config(
 )
 
 st.title('Centrales')
+st.write("HI")
 
-#Read centrales.csv
-def load_data():
-    centrales = pd.read_csv('data/centrales.csv')
-    return centrales
+#Read centrales
+centrales = pd.read_csv('data/centrales.csv')
 
-data_load_state = st.text('Loading data...')
-centrales = load_data()
-data_load_state.text('Loading data...done!')
+
+#data_load_state = st.text('Loading data...')
+#centrales = load_data()
+#data_load_state.text('Loading data...done!')
 
 #Show centrales
 st.subheader('Centrales')
