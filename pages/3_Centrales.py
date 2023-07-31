@@ -2,6 +2,12 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+st.set_page_config(
+    page_title="Centrales",
+    page_icon=":)",
+    layout="wide",
+)
+
 st.title('Centrales')
 
 #Read centrales.csv
