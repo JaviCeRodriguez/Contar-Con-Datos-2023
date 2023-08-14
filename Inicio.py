@@ -27,7 +27,7 @@ colores = {
 
 st.title('Análisis de consumo energético vía CAMMESA')
 
-st.title('Propósito del trabajo')
+#st.title('Propósito del trabajo')
 
 st.write("""
 Este trabajo busca entender la distribución energética argentina, con el fin de descubrir posibles patrones de interés.
