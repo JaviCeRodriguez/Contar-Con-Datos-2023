@@ -3,6 +3,12 @@ import requests
 import seaborn as sns
 import pandas as pd
 import warnings
+import matplotlib.pyplot as plt
+from io import StringIO
+import plotly.express as px
+from datetime import datetime, timedelta
+
+
 
 st.set_page_config(
     page_title="Inicio",
@@ -53,6 +59,8 @@ option = st.sidebar.selectbox(
     index=len(regiones) - 1,
     placeholder='Selecciona o escriba el nombre de la región...'
 )
+
+
 region_selected = next(region for region in regiones if region['nombre'] == option)
 
 with col1_today:
@@ -165,3 +173,47 @@ with col2_today:
 st.divider()
 
 st.write("### Datos históricos")
+
+dataset_url = "https://raw.githubusercontent.com/JaviCeRodriguez/Contar-Con-Datos-2023/main/eda/data/cammesa/maximos_historicos.csv"
+
+# read csv from a URL y mantengo en cache
+@st.cache_data
+def get_data() -> pd.DataFrame:
+    return pd.read_csv(dataset_url)
+
+st.write("Loagind....")
+df_historic = get_data()
+#Visualizo los primeros registros
+st.write(df_historic.head())
+st.write('Loading... done!')
+#Unique valus of año in df_historic
+anus = list(df_historic['AÑO'].unique())
+
+option_2 = st.sidebar.selectbox(
+    key='años',
+    label='Elige un año para visualizar',
+    options=anus,
+    index=len(anus) - 1,
+    placeholder='Selecciona el año'
+)
+
+# Filtrar los datos por el año seleccionado
+selected_year_data = df_historic[df_historic['AÑO'] == option_2]
+
+# Convertir la columna 'Hora Potencia Pico' a tipo numérico (eliminar las comas y convertir a float)
+selected_year_data['Hora Potencia Pico'] = selected_year_data['Hora Potencia Pico'].str.replace(',', '').astype(float)
+
+# Crear el gráfico de barras
+st.write(f'## Gráfico de Potencia Pico SADI (MW) por Fecha para el año {option_2}')
+fig = px.bar(selected_year_data, x='FECHA', y='Potencia Pico SADI (MW)', title='Hora Potencia Pico SADI (MW) por Fecha')
+fig.update_layout(
+    xaxis_title='Fecha',
+    yaxis_title='Potencia Pico SADI (MW)',
+    title_x=0.5,  # Centrar el título
+    font=dict(family='Arial', size=14),  # Personalizar la fuente del texto
+    plot_bgcolor='white',  # Color de fondo del gráfico
+)
+st.plotly_chart(fig)
+
+# Calcular el promedio de Hora Potencia Pico por VERANO/INVIERNo 
+
