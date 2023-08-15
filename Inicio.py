@@ -28,9 +28,10 @@ colores = {
 st.title('Análisis de consumo energético vía CAMMESA')
 
 st.write("""
-#Propósito del trabajo
+## Propósito del trabajo
 Este trabajo busca entender la distribución energética argentina, con el fin de descubrir posibles patrones de interés.
-Para esto se realizará un análisis exploratorio de datos obtenidos a través de la web de CAMESSA y su API. 
+Para esto se realizará un análisis exploratorio de datos obtenidos a través de la web de CAMESSA, utilizando su API y
+datos disponibles que ofrecen abiertamente. 
 """)
 
 sadi = pd.read_csv('eda/data/cammesa/sadi_centrales.csv', sep=";")
