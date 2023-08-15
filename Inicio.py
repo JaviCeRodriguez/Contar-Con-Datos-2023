@@ -1,10 +1,7 @@
 import streamlit as st
-from streamlit_folium import st_folium
-import matplotlib.pyplot as plt
-import pandas as pd
-import folium
+import requests
 import seaborn as sns
-import numpy as np
+import pandas as pd
 import warnings
 
 st.set_page_config(
@@ -12,8 +9,6 @@ st.set_page_config(
     page_icon="🏠",
     layout="wide",
 )
-
-# TODO: See https://github.com/randyzwitch/streamlit-folium/blob/master/examples/pages/dynamic_updates.py
 
 sns.set(rc={'figure.figsize':(20, 6)})
 warnings.filterwarnings('ignore')
@@ -29,50 +24,124 @@ st.title('Análisis de consumo energético vía CAMMESA')
 
 st.write("""
 ## Propósito del trabajo
+
 Este trabajo busca entender la distribución energética argentina, con el fin de descubrir posibles patrones de interés.
 Para esto se realizará un análisis exploratorio de datos obtenidos a través de la web de CAMESSA, utilizando su API y
 datos disponibles que ofrecen abiertamente. 
 """)
 
-sadi = pd.read_csv('eda/data/cammesa/sadi_centrales.csv', sep=";")
-df_sadi = sadi[['id', 'Nombre', 'Nemo', 'Tipo', 'Potencia', 'Region', 'lat', 'lon']]
-df_sadi = df_sadi.dropna()
+st.divider()
 
+st.write("""
+## KPI - Un breve resumen con datos
 
-df_sadi_potencias = df_sadi \
-    .groupby(['Tipo', 'Region']) \
-    .agg({
-        'Potencia': np.sum
-    }) \
-    .reset_index()
-fig = plt.figure(figsize=(20, 6))
-ax = sns.barplot(df_sadi_potencias, x='Tipo', y='Potencia', hue='Region', errorbar=None, width=0.9)
-for i in ax.containers:
-    ax.bar_label(i, )
-st.pyplot(fig)
+Observemos las métricas destacadas de hoy y de los registros históricos
+""")
 
+col1_today, col2_today = st.columns(2)
+api_regiones_demanda = 'https://api.cammesa.com/demanda-svc/demanda/RegionesDemanda'
+api_demanda_temp = 'https://api.cammesa.com/demanda-svc/demanda/ObtieneDemandaYTemperaturaRegion?id_region='
+api_generacion = 'https://api.cammesa.com/demanda-svc/generacion/ObtieneGeneracioEnergiaPorRegion?id_region='
 
-st.title('Ubicación de centrales diferenciadas por tipo')
-eolicas = st.checkbox('Eólicas - Verde')
-hidraulica = st.checkbox('Hidráulica - Azul')
-nuclear = st.checkbox('Nuclear - Naranja')
-solar = st.checkbox('Solar - Rosa')
-termicas = st.checkbox('Térmicas - Rojo')
-checkboxs = {
-    'eolicas': eolicas,
-    'hidraulica': hidraulica,
-    'nuclear': nuclear,
-    'solar': solar,
-    'termicas': termicas,
-}
+response = requests.get(api_regiones_demanda)
+regiones = list(response.json())
 
-mapa = folium.Map(location=[-34.6, -58.4], zoom_start=4)
-for idx in range(len(df_sadi)):
-    if checkboxs[df_sadi.iloc[idx]['Tipo']]:
-        location = df_sadi.iloc[idx][['lat', 'lon']]
-        folium.Marker(
-            location=location,
-            popup=f"{df_sadi.iloc[idx]['Tipo']}: {df_sadi.iloc[idx]['Nombre']}",
-            icon=folium.Icon(color=colores[df_sadi.iloc[idx]['Tipo']], icon='bolt', prefix='fa')
-        ).add_to(mapa)
-st_folium(mapa, width=1420)
+option = st.sidebar.selectbox(
+    key='demanda-options',
+    label='Elige una región para visualizar',
+    options=(region['nombre'] for region in regiones),
+    index=len(regiones) - 1,
+    placeholder='Selecciona o escriba el nombre de la región...'
+)
+region_selected = next(region for region in regiones if region['nombre'] == option)
+
+with col1_today:
+    st.write(f"### Demanda de {region_selected.get('nombre')} (ahora)")
+
+    response_dem = requests.get(api_demanda_temp + str(region_selected.get('id')))
+
+    if response_dem.status_code == 200:
+        demanda = list(response_dem.json())
+        df_demanda = pd.DataFrame(demanda)
+        df_demanda['fecha'] = pd.to_datetime(df_demanda['fecha'])
+        # Para asegurar la visibilidad de KPIs, eliminamos todos los datos nulos
+        df_demanda.dropna(inplace=True)
+        last_row_dem = df_demanda.iloc[-1]
+
+        col1_m1, col1_m2, col1_m3 = st.columns(3)
+
+        diff_m1_1 = round(last_row_dem['demHoy'] - last_row_dem['demAyer'], 3)
+        col1_m1.metric(
+            label="Demanda hoy vs ayer",
+            value=f"{last_row_dem['demHoy']} GW",
+            delta=f"{diff_m1_1} GW",
+            delta_color="inverse"
+        )
+        diff_m1_2 = round(last_row_dem['demHoy'] - last_row_dem['demPrevista'], 3)
+        col1_m2.metric(
+            label="Demanda hoy vs prevista",
+            value=f"{last_row_dem['demHoy']} GW",
+            delta=f"{diff_m1_2} GW",
+            delta_color="inverse"
+        )
+        diff_m1_3 = round(last_row_dem['tempHoy'] - last_row_dem['tempAyer'], 3)
+        col1_m3.metric(
+            label="Temperatura hoy vs ayer",
+            value=f"{last_row_dem['tempHoy']} °C",
+            delta=f"{diff_m1_3} °C",
+            delta_color="inverse"
+        )
+
+        with st.expander("Ver datos de demanda"):
+            st.dataframe(df_demanda)
+
+with col2_today:
+    st.write(f"### Generación de {region_selected.get('nombre')} (ahora)")
+
+    response_gen = requests.get(api_generacion + str(region_selected.get('id')))
+    if response_dem.status_code == 200:
+        generacion = list(response_gen.json())
+        if len(generacion) > 0:
+            df_generacion = pd.DataFrame(generacion)
+            df_generacion['fecha'] = pd.to_datetime(df_generacion['fecha'])
+            # Para asegurar la visibilidad de KPIs, eliminamos todos los datos nulos
+            df_generacion.dropna(inplace=True)
+            last_row_gen_1 = df_generacion.iloc[-1]
+            last_row_gen_2 = df_generacion.iloc[-2]
+
+            col2_m1, col2_m2, col2_m3, col2_m4 = st.columns(4)
+
+            diff_m2_1 = round(last_row_gen_1['hidraulico'] - last_row_gen_2['hidraulico'], 3)
+            col2_m1.metric(
+                label="💧 Hidráulico",
+                value=f"{last_row_gen_1['hidraulico']} GW",
+                delta=f"{diff_m2_1} GW",
+            )
+
+            diff_m2_2 = round(last_row_gen_1['termico'] - last_row_gen_2['termico'], 3)
+            col2_m2.metric(
+                label="🌡️ Térmico",
+                value=f"{last_row_gen_1['termico']} GW",
+                delta=f"{diff_m2_2} GW",
+            )
+
+            diff_m2_3 = round(last_row_gen_1['nuclear'] - last_row_gen_2['nuclear'], 3)
+            col2_m3.metric(
+                label="☢️ Nuclear",
+                value=f"{last_row_gen_1['nuclear']} GW",
+                delta=f"{diff_m2_3} GW",
+            )
+
+            diff_m2_4 = round(last_row_gen_1['renovable'] - last_row_gen_2['renovable'], 3)
+            col2_m4.metric(
+                label="🍃 Renovable",
+                value=f"{last_row_gen_1['renovable']} GW",
+                delta=f"{diff_m2_4} GW",
+            )
+
+            with st.expander("Ver datos de generación"):
+                st.dataframe(df_generacion)
+
+st.divider()
+
+st.write("### Datos históricos")
