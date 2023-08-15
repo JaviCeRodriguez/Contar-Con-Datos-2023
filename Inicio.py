@@ -27,6 +27,12 @@ colores = {
 
 st.title('Análisis de consumo energético vía CAMMESA')
 
+st.write("""
+#Propósito del trabajo
+Este trabajo busca entender la distribución energética argentina, con el fin de descubrir posibles patrones de interés.
+Para esto se realizará un análisis exploratorio de datos obtenidos a través de la web de CAMESSA y su API. 
+""")
+
 sadi = pd.read_csv('eda/data/cammesa/sadi_centrales.csv', sep=";")
 df_sadi = sadi[['id', 'Nombre', 'Nemo', 'Tipo', 'Potencia', 'Region', 'lat', 'lon']]
 df_sadi = df_sadi.dropna()
