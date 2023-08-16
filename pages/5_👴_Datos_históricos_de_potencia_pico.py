@@ -47,7 +47,6 @@ def get_data() -> pd.DataFrame:
 
 
 st.title('Datos históricos de potencia pico')
-st.write("something")
 
 df_maximos = get_data()
 with st.expander("Ver datos históricos"):
@@ -71,7 +70,7 @@ fig = px.scatter(
 fig.update_layout(
     xaxis_title='Años',
     yaxis_title='Energía SADI (GWh)',
-    title_x=0.5,
+    title='Evolución de generación de energía a lo largo de los años',
 )
 st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 
@@ -85,7 +84,7 @@ fig = px.scatter(
 fig.update_layout(
     xaxis_title='Años',
     yaxis_title='Potencia Pico SADI (MW)',
-    title_x=0.5,
+    title='Evolución de la potencia pico a lo largo de los años',
 )
 st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 
@@ -100,6 +99,6 @@ fig = px.scatter(
 fig.update_layout(
     xaxis_title='Años',
     yaxis_title='Temperatura Media Diaria GBA  (°C)',
-    title_x=0.5,
+    title='Temperatura media en los momentos pico (en GBA)',
 )
 st.plotly_chart(fig, use_container_width=True, theme='streamlit')
