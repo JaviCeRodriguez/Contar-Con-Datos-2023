@@ -215,5 +215,9 @@ fig.update_layout(
 )
 st.plotly_chart(fig)
 
+st.write("""
+Picos de potencia cada 4 días, comienzo en 1/1/2023
+""")
+
 # Calcular el promedio de Hora Potencia Pico por VERANO/INVIERNo 
 
