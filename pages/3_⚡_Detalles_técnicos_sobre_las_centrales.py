@@ -86,7 +86,7 @@ with col1:
 with col2:
     st.title("Central Electrica")
     st.write("""
-             Visualización la distribución geográfica de la potencia instalada en las centrales eléctricas de Argentina.
+             Distribución geográfica de la potencia instalada en las centrales eléctricas de Argentina.
          """)
     st.pydeck_chart(pdk.Deck(
     map_style='mapbox://styles/mapbox/light-v9',
@@ -118,7 +118,9 @@ with col2:
 
 #Visualizacion del dataset centrales
 st.subheader('Dataset de centrales')
-st.write(centrales)
+st.write("""
+A continuación se muestran los datos utilizados para la realización de las visualizaciones
+""")
 
             
         
