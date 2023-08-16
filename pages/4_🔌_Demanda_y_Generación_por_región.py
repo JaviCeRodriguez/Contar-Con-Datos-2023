@@ -85,6 +85,10 @@ if response_dem.status_code == 200:
     )
     st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
+    st.write("""
+    Demanda energética a lo largo del día en la región seleccionada
+    """)
+
     fig2 = go.Figure()
     if "tempHoy" in df_demanda:
         fig2.add_trace(go.Scatter(
@@ -127,7 +131,7 @@ if response_dem.status_code == 200:
     st.plotly_chart(fig2, theme="streamlit", use_container_width=True)
 
 st.write("""
-Demanda energética a lo largo del día en la región seleccionada
+Temperatura a lo largo del día en la región seleccionada
 """)
 
 st.header("Generación")
