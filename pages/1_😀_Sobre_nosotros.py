@@ -8,8 +8,8 @@ st.set_page_config(
 
 st.header("😀 Sobre nosotros")
 st.write("""
-Somos estudiantes de Licenciatura en Ciencia de Datos de UNSAM e hicimos este presentación de datos para aplicar nuestro
-aprendizaje en el primer año de la carrera. Agradecemos al equipo de Rodrigo Díaz por alentarnos a participar y demostrar
+Somos tres estudiantes de la Licenciatura en Ciencia de Datos en UNSAM, e hicimos este presentación de datos para aplicar nuestro
+aprendizaje adquirido en el primer año de la carrera. Agradecemos al equipo de Rodrigo Díaz por alentarnos a participar y demostrar
 que con datos podemos hacer muchas cosas interesantes! 😄
 """)
 
