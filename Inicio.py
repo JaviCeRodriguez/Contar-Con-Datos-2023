@@ -181,7 +181,7 @@ dataset_url = "https://raw.githubusercontent.com/JaviCeRodriguez/Contar-Con-Dato
 def get_data() -> pd.DataFrame:
     return pd.read_csv(dataset_url)
 
-st.write("Loagind....")
+st.write("Loadind....")
 df_historic = get_data()
 #Visualizo los primeros registros
 st.write(df_historic.head())
