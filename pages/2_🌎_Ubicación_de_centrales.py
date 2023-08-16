@@ -29,7 +29,9 @@ sadi = pd.read_csv('eda/data/cammesa/sadi_centrales.csv', sep=";")
 df_sadi = sadi[['id', 'Nombre', 'Nemo', 'Tipo', 'Potencia', 'Region', 'lat', 'lon']]
 df_sadi = df_sadi.dropna()
 
-col1, col2, col3, col4, col5 = st.columns(5)
+col1, col2 = st.columns(2)
+col3, col4 = st.columns(2)
+col5, _ = st.columns(2)
 
 eolicas = col1.checkbox('🍃 Eólicas - Verde', value=True)
 hidraulica = col2.checkbox('💧 Hidráulica - Azul', value=True)

@@ -3,18 +3,24 @@ import requests
 import seaborn as sns
 import pandas as pd
 import warnings
-import matplotlib.pyplot as plt
-from io import StringIO
 import plotly.express as px
-from datetime import datetime, timedelta
-
-
 
 st.set_page_config(
     page_title="Inicio",
     page_icon="🏠",
     layout="wide",
 )
+
+
+def convert_to_timedelta(time_str):
+    if isinstance(time_str, str):
+        parts = time_str.replace(',', '.').split('.')
+        if len(parts) == 2:
+            hour, minute = map(int, parts)
+            total_minutes = hour * 60 + minute
+            return pd.to_timedelta(f'{total_minutes} minutes')
+    return pd.NaT
+
 
 sns.set(rc={'figure.figsize':(20, 6)})
 warnings.filterwarnings('ignore')
@@ -80,7 +86,8 @@ with col1_today:
             st.write("No hay datos suficientes para mostrar este KPI")
 
         if len(last_row_dem) > 0:
-            col1_m1, col1_m2, col1_m3 = st.columns(3)
+            col1_m1, col1_m2 = st.columns(2)
+            col1_m3, _ = st.columns(2)
 
             if 'demHoy' in last_row_dem.index and 'demAyer' in last_row_dem.index:
                 diff_m1_1 = round(last_row_dem['demHoy'] - last_row_dem['demAyer'], 3)
@@ -133,7 +140,8 @@ with col2_today:
             if last_row_gen_1.empty or last_row_gen_2.empty or df_generacion.empty:
                 st.write("No hay datos suficientes para mostrar este KPI")
 
-            col2_m1, col2_m2, col2_m3, col2_m4 = st.columns(4)
+            col2_m1, col2_m2 = st.columns(2)
+            col2_m3, col2_m4 = st.columns(2)
 
             if 'hidraulico' in last_row_gen_1.index and 'hidraulico' in last_row_gen_2.index:
                 diff_m2_1 = round(last_row_gen_1['hidraulico'] - last_row_gen_2['hidraulico'], 3)
@@ -181,12 +189,8 @@ dataset_url = "https://raw.githubusercontent.com/JaviCeRodriguez/Contar-Con-Dato
 def get_data() -> pd.DataFrame:
     return pd.read_csv(dataset_url)
 
-st.write("Loadind....")
 df_historic = get_data()
-#Visualizo los primeros registros
 st.write(df_historic.head())
-st.write('Loading... done!')
-#Unique valus of año in df_historic
 anus = list(df_historic['AÑO'].unique())
 
 option_2 = st.sidebar.selectbox(
@@ -211,13 +215,28 @@ fig.update_layout(
     yaxis_title='Potencia Pico SADI (MW)',
     title_x=0.5,  # Centrar el título
     font=dict(family='Arial', size=14),  # Personalizar la fuente del texto
-    plot_bgcolor='white',  # Color de fondo del gráfico
+    plot_bgcolor='black',  # Color de fondo del gráfico
 )
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 
 st.write("""
 Picos de potencia cada 4 días, comienzo en 1/1/2023
 """)
 
-# Calcular el promedio de Hora Potencia Pico por VERANO/INVIERNo 
+max_row = selected_year_data[selected_year_data['Potencia Pico SADI (MW)'] == selected_year_data['Potencia Pico SADI (MW)'].max()]
+min_row = selected_year_data[selected_year_data['Potencia Pico SADI (MW)'] == selected_year_data['Potencia Pico SADI (MW)'].min()]
 
+max_power = max_row['Potencia Pico SADI (MW)'].values[0]
+min_power = min_row['Potencia Pico SADI (MW)'].values[0]
+max_hour = max_row['Hora Potencia Pico'].values[0]
+min_hour = min_row['Hora Potencia Pico'].values[0]
+
+colum_1, colum_2 = st.columns(2)
+
+with colum_1:
+    st.metric(label='Potencia Pico Máxima (MW)', value=max_power)
+    st.metric(label='Hora Potencia Pico Máxima', value=max_hour)
+
+with colum_2:
+    st.metric(label='Potencia Pico Mínima (MW)', value=min_power)
+    st.metric(label='Hora Potencia Pico Mínima', value=min_hour)
