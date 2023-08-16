@@ -30,7 +30,7 @@ regiones = list(response.json())
 
 option = st.selectbox(
     key='demanda-options',
-    label='Elige una región para visualizar',
+    label='Elige una región para desplegar los datos de demanda utilizados en las visualizaciones',
     options=(region['nombre'] for region in regiones),
     index=len(regiones) - 1,
     placeholder='Selecciona o escriba el nombre de la región...'
@@ -126,12 +126,16 @@ if response_dem.status_code == 200:
     )
     st.plotly_chart(fig2, theme="streamlit", use_container_width=True)
 
+st.write("""
+Demanda energética a lo largo del día en la región seleccionada
+""")
+
 st.header("Generación")
 st.caption(dt.now().strftime("Última actualización de generación: %d/%m/%Y, a las %H:%M"))
 
 option2 = st.selectbox(
     key='generacion-options',
-    label='Elige una región para visualizar',
+    label='Elige una región para desplegar los datos de generación utilizados en las visualizaciones',
     options=(region['nombre'] for region in regiones),
     index=len(regiones) - 1,
     placeholder='Selecciona o escriba el nombre de la región...'
